@@ -1,0 +1,55 @@
+:root {
+  --bck-1: black;
+  --bck-2: white;
+  --bck-3: #000428;
+  --lg-1: linear-gradient(to right, #004e92, #000428);
+  --brd-radius: 8px;
+}
+
+html {
+  font-size: 62.5%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: grid;
+  place-items: center;
+  background-color: var(--bck-1);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+input {
+  font-family: monospace;
+  font-weight: 500;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+@keyframes input-bck-breating {
+  0% {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+  }
+  50% {
+    background-color: #ecf0f1cb;
+    color: #2c3e50;
+  }
+  100% {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+  }
+}
