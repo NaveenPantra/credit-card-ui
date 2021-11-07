@@ -39,6 +39,11 @@ input {
   margin: 0;
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
 @keyframes input-bck-breating {
   0% {
     background-color: #ecf0f1;

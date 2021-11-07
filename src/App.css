@@ -242,3 +242,18 @@
   align-self: flex-end;
   object-fit: contain;
 }
+
+.card_turn_button {
+  border: none;
+  padding: 1rem 3rem;
+  margin-top: 2rem;
+  align-self: center;
+  justify-self: center;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 600;
+  background-color: #1d1151;
+  color: white;
+  border-radius: var(--brd-radius);
+  font-family: monospace;
+}

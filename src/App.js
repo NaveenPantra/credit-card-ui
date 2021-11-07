@@ -5,9 +5,18 @@ import { CARD_NUMBER_CONFIG, CARD_VALIDITY_CONFIG } from "./config";
 
 function App() {
   const [turnCard, setTurnCard] = React.useState(false);
+  const cvvRef = React.useRef();
+  const prevInpRef = React.useRef();
 
   const handleTurnCard = React.useCallback(() => {
-    setTurnCard((prevState) => !prevState);
+    setTurnCard((prevState) => {
+      if (!prevState) {
+        cvvRef.current?.focus();
+      } else {
+        prevInpRef.current?.focus();
+      }
+      return !prevState;
+    });
   }, [setTurnCard]);
 
   return (
@@ -16,7 +25,7 @@ function App() {
         <div className="card_container">
           <div className="card_back">
             <div className="card_back_content">
-              <CardBack />
+              <CardBack ref={cvvRef} />
             </div>
           </div>
           <div className="card_front">
@@ -29,26 +38,26 @@ function App() {
                 className={"zest-logo"}
               />
             </div>
-            <CardNumber />
+            <CardNumber ref={prevInpRef} />
             <div className="card_validity">
               <label className="card_validity_label">
                 <span className="card_validity_text">VALID</span>
                 <span className="card_validity_text">UP TO</span>
               </label>
-              <CardValidity />
+              <CardValidity ref={prevInpRef} />
             </div>
-            <CardName />
+            <CardName ref={prevInpRef} />
           </div>
         </div>
       </div>
-      <button onClick={handleTurnCard}>
+      <button onClick={handleTurnCard} className={"card_turn_button"}>
         {!turnCard ? "Enter CVV" : "Enter card details"}
       </button>
     </>
   );
 }
 
-function CardNumber() {
+const CardNumber = React.forwardRef(function CardNumber(_, ref) {
   const [value, setValue] = React.useState(CARD_NUMBER_CONFIG.state);
 
   const updateValue = React.useCallback(
@@ -72,6 +81,13 @@ function CardNumber() {
     CARD_NUMBER_CONFIG.inputRefs[currentInputIndex - 1]?.current?.select();
   }, []);
 
+  const handleOnFocus = React.useCallback(
+    (ele) => {
+      ref.current = ele;
+    },
+    [ref]
+  );
+
   const UI = React.useMemo(() => {
     let inputIndex = -1;
     return CARD_NUMBER_CONFIG.sequence.map((char) => {
@@ -93,14 +109,15 @@ function CardNumber() {
               goToNext={focusOnNextInput}
               goToPrev={focusOnPrevInput}
               placeholder={CARD_NUMBER_CONFIG.placeholder}
+              onFocus={handleOnFocus}
             />
           );
       }
     });
-  }, [updateValue, value, focusOnNextInput, focusOnPrevInput]);
+  }, [updateValue, value, focusOnNextInput, focusOnPrevInput, handleOnFocus]);
 
   return <div className="card_number">{UI}</div>;
-}
+});
 
 const Input = React.forwardRef(function Input(
   {
@@ -115,6 +132,7 @@ const Input = React.forwardRef(function Input(
     regexTester,
     className = "",
     placeholder,
+    onFocus,
   },
   ref
 ) {
@@ -141,7 +159,8 @@ const Input = React.forwardRef(function Input(
 
   const handleOnFocus = React.useCallback(() => {
     ref?.current?.select();
-  }, [ref]);
+    onFocus(ref?.current);
+  }, [ref, onFocus]);
 
   return (
     <input
@@ -156,7 +175,7 @@ const Input = React.forwardRef(function Input(
   );
 });
 
-const CardValidity = () => {
+const CardValidity = React.forwardRef(function CardValidity(_, ref) {
   const [value, setValue] = React.useState(["", ""]);
 
   const handleGoToNext = React.useCallback((currentInputIndex) => {
@@ -168,6 +187,13 @@ const CardValidity = () => {
     CARD_VALIDITY_CONFIG.inputRefs[currentInputIndex - 1]?.current?.focus();
     CARD_VALIDITY_CONFIG.inputRefs[currentInputIndex - 1]?.current?.select();
   }, []);
+
+  const handleOnFocus = React.useCallback(
+    (ele) => {
+      ref.current = ele;
+    },
+    [ref]
+  );
 
   const handleUpdateValue = React.useCallback(
     (inputIndex, inputValue) => {
@@ -192,6 +218,7 @@ const CardValidity = () => {
         goToNext={handleGoToNext}
         goToPrev={handleGoToPrev}
         placeholder={CARD_VALIDITY_CONFIG.placeholder}
+        onFocus={handleOnFocus}
       />
       <div>/</div>
       <CardValidityInput
@@ -204,13 +231,23 @@ const CardValidity = () => {
         goToNext={handleGoToNext}
         goToPrev={handleGoToPrev}
         placeholder={CARD_VALIDITY_CONFIG.placeholder}
+        onFocus={handleOnFocus}
       />
     </div>
   );
-};
+});
 
 const CardValidityInput = React.forwardRef(function CardValidityInput(
-  { value, updateValue, goToNext, maxValue, inputIndex, goToPrev, placeholder },
+  {
+    value,
+    updateValue,
+    goToNext,
+    maxValue,
+    inputIndex,
+    goToPrev,
+    placeholder,
+    onFocus,
+  },
   ref
 ) {
   const handleOnChange = React.useCallback(
@@ -240,7 +277,8 @@ const CardValidityInput = React.forwardRef(function CardValidityInput(
 
   const handleOnFocus = React.useCallback(() => {
     ref?.current?.select();
-  }, [ref]);
+    onFocus(ref.current);
+  }, [ref, onFocus]);
 
   return (
     <input
@@ -256,21 +294,32 @@ const CardValidityInput = React.forwardRef(function CardValidityInput(
   );
 });
 
-const CardName = React.forwardRef(function CardName() {
+const CardName = React.forwardRef(function CardName(_, ref) {
+  const handleOnFocus = React.useCallback(
+    (event) => {
+      ref.current = event.target;
+    },
+    [ref]
+  );
+
   return (
     <div className="card_name">
-      <input className={"card_name_input"} placeholder={"Your Name..."} />
+      <input
+        onFocus={handleOnFocus}
+        className={"card_name_input"}
+        placeholder={"Your Name..."}
+      />
     </div>
   );
 });
 
-const CardBack = () => {
+const CardBack = React.forwardRef(function CardBack(_, ref) {
   return (
     <div className="card_back_wrapper">
       <div className="card_back_mag_strip"></div>
       <div className="cvv_strip_container">
         <div className="cvv_strip"></div>
-        <CardCVV />
+        <CardCVV ref={ref} />
       </div>
       <div className="card_back_details">
         <div className="card_back_details"></div>
@@ -282,9 +331,9 @@ const CardBack = () => {
       </div>
     </div>
   );
-};
+});
 
-const CardCVV = React.forwardRef(function CardCVV() {
+const CardCVV = React.forwardRef(function CardCVV(_, ref) {
   const [value, setValue] = React.useState("");
 
   const handleOnValueChange = React.useCallback((event) => {
@@ -295,6 +344,7 @@ const CardCVV = React.forwardRef(function CardCVV() {
 
   return (
     <input
+      ref={ref}
       className={"input_card_cvv"}
       placeholder={"CVV"}
       value={value}
